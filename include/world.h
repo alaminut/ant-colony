@@ -7,31 +7,28 @@
 
 #include <SFML/Graphics.hpp>
 #include <vector>
-#include <functional>
 #include "colony.h"
 
-struct Colony;
-
 struct World {
-    World(sf::RenderTarget &window, float width, float height);
+    friend class GameManager;
 
     World(sf::RenderTarget &window, float x, float y, float width, float height);
-
-    void add_colony(Colony &colony);
-
-    void update(float dt);
-
-    void render();
 
     const sf::Vector2f &position() const;
 
     const sf::Vector2f &size() const;
 
 private:
+    void update(float dt);
+
+    void render();
+
+    void spawnColony(float x, float y, uint32_t colonySize, sf::Color colonyColor, const std::string &colonyName);
+
     sf::RenderTarget &m_target;
-    std::vector<Colony *> m_colonies;
-    sf::Vector2f m_size;
     sf::Vector2f m_position;
+    sf::Vector2f m_size;
+    std::vector<Colony> m_colonies;
     sf::RectangleShape m_shape;
 };
 

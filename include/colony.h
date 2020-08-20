@@ -9,31 +9,43 @@
 #include <string>
 #include <SFML/Graphics.hpp>
 #include "ant.h"
-#include "world.h"
 
-struct Ant;
 struct World;
 
 struct Colony {
-    Colony(World &world, float x, float y, uint32_t size, sf::Color color, std::string name);
+    friend struct World;
+
+    Colony(World &world, float x, float y, uint32_t size, sf::Color color, const std::string &name);
 
     void spawn_ant();
 
-    void update(float dt);
+    [[nodiscard]]
+    const sf::Vector2f &position() const {
+        return m_position;
+    }
 
-    void render(sf::RenderTarget &target);
+    [[nodiscard]]
+    const std::string &name() const {
+        return m_name;
+    }
+
+    const float Radius = 20;
 
 private:
+    void update(float dt);
+
+    void render(sf::RenderTarget &target, sf::RenderStates &renderStates);
+
     World &m_world;
     sf::VertexArray m_ants_va;
     std::vector<Ant> m_ants;
+
+    //TODO: Ant texture daha sonra texture manager ile yönetilecek
     sf::Texture m_antTexture;
 
-public:
-    float size = 20;
-    const sf::Color color;
-    const std::string name;
-    const sf::Vector2f position;
+    const sf::Color m_color;
+    const std::string &m_name;
+    const sf::Vector2f m_position;
 };
 
 #endif //GAME_DEMO_COLONY_H

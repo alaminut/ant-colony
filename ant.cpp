@@ -5,14 +5,24 @@
 #include "ant.h"
 #include "config.h"
 #include "rng_engine.h"
+#include "world.h"
+#include "colony.h"
 
-Ant::Ant(World &world, Colony &colony, float x, float y, float angle, uint32_t id_) :
+const std::vector<sf::Vector2f> Ant::TextureCoords{
+        sf::Vector2f(0.0f, 0.0f),
+        sf::Vector2f(73.0f, 0.0f),
+        sf::Vector2f(73.0f, 107.0f),
+        sf::Vector2f(0.0f, 107.0f)
+};
+
+Ant::Ant(World &world, Colony &colony, float x, float y, float angle, uint32_t id_, sf::Texture &texture) :
         m_world(world),
         m_colony(colony),
         m_position(x, y),
         m_direction(angle),
         m_id(id_),
-        m_action(Action::SEARCHING_FOOD) {}
+        m_action(Action::SEARCHING_FOOD),
+        m_texture(texture) {}
 
 void Ant::update(const float dt) {
     updatePosition(dt);
@@ -27,7 +37,7 @@ void Ant::update(const float dt) {
 
     //TODO: Yemek aranmayan durumda colony ile collide işlemini hesapla.
 
-    if (getLength(m_position - m_colony.position) < m_colony.size) {
+    if (getLength(m_position - m_colony.position()) < m_colony.Radius) {
         if (m_action == Action::TO_COLONY) {
             printf("Ant reached to home, moving back to food.");
             m_action = Action::SEARCHING_FOOD;
@@ -52,9 +62,11 @@ void Ant::updatePosition(const float dt) {
     m_position.y = m_position.y > world_size.y ? world_position.y : m_position.y;
 }
 
-void Ant::render_in(sf::VertexArray &va, const uint32_t index) const {
+void Ant::render_in(sf::VertexArray &va, const uint32_t index, sf::RenderStates &renderStates) const {
     const sf::Vector2f dir = m_direction;
     const sf::Vector2f norm(-dir.y, dir.x);
+
+    renderStates.texture = &m_texture;
 
     va[index + 0].color = ANT_COLOR;
     va[index + 1].color = ANT_COLOR;
@@ -79,8 +91,3 @@ void Ant::setAction(const Action action) {
 const sf::Vector2f &Ant::getPosition() const {
     return m_position;
 }
-
-std::vector<sf::Vector2f> Ant::TextureCoords{sf::Vector2f(0.0f, 0.0f),
-                                             sf::Vector2f(73.0f, 0.0f),
-                                             sf::Vector2f(73.0f, 107.0f),
-                                             sf::Vector2f(0.0f, 107.0f)};

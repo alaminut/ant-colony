@@ -1,7 +1,6 @@
 #include <iostream>
 #include <SFML/Graphics.hpp>
-#include "world.h"
-#include "colony.h"
+#include "game_manager.h"
 #include "config.h"
 
 using SFMLEventType = sf::Event::EventType;
@@ -10,8 +9,10 @@ int main() {
     sf::RenderWindow window(sf::VideoMode(WIN_WIDTH, WIN_HEIGHT), "Game Demo");
     window.setFramerateLimit(60);
 
-    World gameWorld(window, 50, 50, 800, 600);
-    Colony c1(gameWorld, 400, 300, 50, sf::Color::Blue, "Blue Colony");
+    sf::RenderStates renderState;
+    GameManager game(window, renderState);
+    game.createWorld(800, 600, 50, 50);
+    game.spawnColony(0, 400, 300, 15000, sf::Color::Blue, "Blue Colony");
 
     sf::Event event;
     const float dt = 0.016f;
@@ -20,20 +21,18 @@ int main() {
             if (event.type == SFMLEventType::Closed) {
                 window.close();
             }
+
             if (event.type == SFMLEventType::KeyReleased) {
-                switch (event.key.code) {
-                    case sf::Keyboard::Key::Escape:
-                        window.close();
-                    default:;
-                        c1.spawn_ant();
+                if (event.key.code == sf::Keyboard::Escape) {
+                    window.close();
                 }
             }
         }
 
-        gameWorld.update(dt);
+        game.update(dt);
 
         window.clear();
-        gameWorld.render();
+        game.render();
         window.display();
     }
 
